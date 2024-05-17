@@ -31,6 +31,22 @@ export class TaskController {
     private readonly responseService: ResponseService,
   ) {}
 
+  private generateFilter(query: GetTasksDto, userId?: string) {
+    const filter = {};
+    if (userId) {
+      filter['owner'] = userId;
+    }
+
+    if (query.status) {
+      filter['status'] = query.status;
+    }
+
+    if (query.dueDate) {
+      filter['dueDate'] = { $gte: query.dueDate };
+    }
+    return filter;
+  }
+
   @ApiOkResponse({
     type: TasksResponse,
     description: 'Tasks fetched successfully',
@@ -40,10 +56,9 @@ export class TaskController {
     @AuthUser('id') userId: string,
     @Query() query: GetTasksDto,
   ) {
-    const filter = query.status
-      ? { status: query.status, owner: userId }
-      : { owner: userId };
-    const response = await this.taskService.getTasks(filter);
+    const response = await this.taskService.getTasks(
+      this.generateFilter(query, userId),
+    );
     return this.responseService.successResponse(
       response,
       'Tasks fetched successfully',
@@ -56,10 +71,9 @@ export class TaskController {
   })
   @Get('/user/:id')
   async getTasksByUser(@Param('id') id: string, @Query() query: GetTasksDto) {
-    const filter = query.status
-      ? { status: query.status, owner: id }
-      : { owner: id };
-    const response = await this.taskService.getTasks(filter);
+    const response = await this.taskService.getTasks(
+      this.generateFilter(query, id),
+    );
     return this.responseService.successResponse(
       response,
       'Task fetched successfully',
@@ -89,8 +103,9 @@ export class TaskController {
   })
   @Get()
   async getTasks(@Query() query: GetTasksDto) {
-    const filter = query.status ? { status: query.status } : {};
-    const response = await this.taskService.getTasks(filter);
+    const response = await this.taskService.getTasks(
+      this.generateFilter(query),
+    );
     return this.responseService.successResponse(
       response,
       'Tasks fetched successfully',
