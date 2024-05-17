@@ -3,29 +3,39 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateTaskDto } from './dto/create_task.dto';
-import { UpdateTaskDto } from './dto/update_task.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/auth/user.entity';
 import { Model } from 'mongoose';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task, TaskStatus } from './task.entity';
 
 @Injectable()
 export class TaskService {
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(Task.name) private readonly taskModel: Model<Task>,
   ) {}
 
-  async getTasks() {
-    return this.taskModel.find();
+  async getTasks(filter: any = {}) {
+    return this.taskModel
+      .find(filter)
+      .sort({
+        dueDate: 'asc',
+        createdAt: 'desc',
+      })
+      .populate({
+        path: 'owner',
+        select: '-password',
+      });
   }
 
   async getTask(id: string) {
-    return this.taskModel.findById(id);
+    return this.taskModel.findById(id).populate({
+      path: 'owner',
+      select: '-password',
+    });
   }
 
-  async createTask(createTaskDto: CreateTaskDto, user: User) {
+  async createTask(createTaskDto: CreateTaskDto, userId: string) {
     if (new Date(createTaskDto.dueDate) < new Date()) {
       throw new BadRequestException('Due date cannot be in the past');
     }
@@ -35,15 +45,15 @@ export class TaskService {
       status: TaskStatus.OPEN,
       priority: createTaskDto.priority,
       dueDate: new Date(createTaskDto.dueDate),
-      owner: user._id,
+      owner: userId,
     });
 
-    task.owner = user;
-    return task;
-  }
+    await task.populate({
+      path: 'owner',
+      select: '-password',
+    });
 
-  async getTasksByUser(userId: string) {
-    return this.taskModel.find({ owner: userId });
+    return task;
   }
 
   async updateTask(id: string, userId: string, updateTaskDto: UpdateTaskDto) {
@@ -57,11 +67,6 @@ export class TaskService {
       );
     }
 
-    console.log(
-      new Date(updateTaskDto.dueDate),
-      new Date(updateTaskDto.dueDate) < new Date(),
-      new Date(updateTaskDto.dueDate) || task.dueDate,
-    );
     if (new Date(updateTaskDto.dueDate) < new Date()) {
       throw new BadRequestException('Due date cannot be in the past');
     }
@@ -75,6 +80,11 @@ export class TaskService {
         : task.dueDate;
 
     await task.save();
+
+    await task.populate({
+      path: 'owner',
+      select: '-password',
+    });
     return task;
   }
 
@@ -88,7 +98,25 @@ export class TaskService {
         `Task with id ${id} not found for user with id ${userId}`,
       );
     }
+    if (task.status === status) {
+      throw new BadRequestException('Task is already in the same status');
+    }
+
+    if (task.status === TaskStatus.DONE) {
+      throw new BadRequestException('Task is already completed');
+    }
+
+    if (task.status === TaskStatus.IN_PROGRESS && status === TaskStatus.OPEN) {
+      throw new BadRequestException('Task is already in progress');
+    }
+
     task.status = status;
+    await task.save();
+
+    await task.populate({
+      path: 'owner',
+      select: '-password',
+    });
     return task;
   }
 
