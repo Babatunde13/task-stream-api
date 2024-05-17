@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { JwtPayload } from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { User } from '../auth/user.entity';
-import { verifyToken } from '../core/utils';
+import { verifyToken } from '../utils';
 
 type JwtUser = {
   id: string;

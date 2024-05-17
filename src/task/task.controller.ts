@@ -12,14 +12,14 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { TaskService } from './task.service';
-import { ResponseService } from '../response/response.service';
+import { ResponseService } from '../responses/response.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
 import { AuthGuard } from '../guards/auth.guard';
-import { AuthUser } from '../decorator/user.decorator';
-import { TaskResponse, TasksResponse } from '../response/success.response';
+import { AuthUser } from '../decorators/user.decorator';
+import { TaskResponse, TasksResponse } from '../responses/success.response';
 
 @ApiBearerAuth()
 @ApiTags('tasks')

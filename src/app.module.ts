@@ -5,8 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { TaskModule } from './task/task.module';
-import { ResponseModule } from './response/response.module';
-import { ResponseService } from './response/response.service';
+import { ResponseModule } from './responses/response.module';
+import { ResponseService } from './responses/response.service';
 
 @Module({
   imports: [

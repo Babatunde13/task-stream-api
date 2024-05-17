@@ -9,7 +9,7 @@ import {
   comparePasswordHash,
   generatePasswordhash,
   getJwtToken,
-} from '../core/utils';
+} from '../utils';
 import { Model } from 'mongoose';
 import { User } from './user.entity';
 import { InjectModel } from '@nestjs/mongoose';

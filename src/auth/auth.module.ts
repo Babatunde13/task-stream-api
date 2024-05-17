@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { ResponseService } from '../response/response.service';
+import { ResponseService } from '../responses/response.service';
 import { User, UserSchema } from './user.entity';
-import { ResponseModule } from '../response/response.module';
+import { ResponseModule } from '../responses/response.module';
 
 @Module({
   imports: [

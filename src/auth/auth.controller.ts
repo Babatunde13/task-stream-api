@@ -1,10 +1,10 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { ResponseService } from '../response/response.service';
+import { ResponseService } from '../responses/response.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { LoginResponse, RegisterResponse } from '../response/success.response';
+import { LoginResponse, RegisterResponse } from '../responses/success.response';
 
 @ApiTags('auth')
 @Controller('auth')

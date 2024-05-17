@@ -1,8 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { ResponseService } from './response/response.service';
-import { HelloResponse } from './response/success.response';
+import { ResponseService } from './responses/response.service';
+import { HelloResponse } from './responses/success.response';
 
 @Controller()
 export class AppController {
