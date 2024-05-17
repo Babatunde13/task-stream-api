@@ -58,7 +58,7 @@ export class Task {
     description: 'Task owner',
     required: true,
   })
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   owner: User;
 
   @ApiProperty({

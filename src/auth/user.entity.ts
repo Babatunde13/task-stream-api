@@ -19,7 +19,7 @@ export class User {
     required: true,
     default: 'John',
   })
-  fullame: string;
+  fullname: string;
 
   @Prop({
     unique: true,

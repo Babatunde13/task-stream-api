@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../auth/user.entity';
-import { Task } from 'src/task/task.entity';
+import { Task } from '../task/task.entity';
 
 abstract class SuccessApiResponse {
   @ApiProperty({ default: true })
