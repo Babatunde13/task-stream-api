@@ -7,18 +7,19 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { TaskService } from './task.service';
 import { ResponseService } from '../response/response.service';
-import { CreateTaskDto } from './dto/create_task.dto';
-import { UpdateTaskDto } from './dto/update_task.dto';
-import { UpdateTaskStatusDto } from './dto/update_task_status.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
+import { GetTasksDto } from './dto/get-tasks.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { AuthUser } from '../decorator/user.decorator';
 import { TaskResponse, TasksResponse } from '../response/success.response';
-import { User } from '../auth/user.entity';
 
 @ApiBearerAuth()
 @ApiTags('tasks')
@@ -35,8 +36,14 @@ export class TaskController {
     description: 'Tasks fetched successfully',
   })
   @Get('/user')
-  async getTasksByAuthUser(@AuthUser('id') userId: string) {
-    const response = await this.taskService.getTasksByUser(userId);
+  async getTasksByAuthUser(
+    @AuthUser('id') userId: string,
+    @Query() query: GetTasksDto,
+  ) {
+    const filter = query.status
+      ? { status: query.status, owner: userId }
+      : { owner: userId };
+    const response = await this.taskService.getTasks(filter);
     return this.responseService.successResponse(
       response,
       'Tasks fetched successfully',
@@ -48,8 +55,11 @@ export class TaskController {
     description: 'Tasks fetched successfully',
   })
   @Get('/user/:id')
-  async getTasksByUser(@Param('id') id: string) {
-    const response = await this.taskService.getTasksByUser(id);
+  async getTasksByUser(@Param('id') id: string, @Query() query: GetTasksDto) {
+    const filter = query.status
+      ? { status: query.status, owner: id }
+      : { owner: id };
+    const response = await this.taskService.getTasks(filter);
     return this.responseService.successResponse(
       response,
       'Task fetched successfully',
@@ -63,10 +73,10 @@ export class TaskController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createTask(
-    @AuthUser() user: User,
+    @AuthUser('id') userId: string,
     @Body() createTaskDto: CreateTaskDto,
   ) {
-    const response = await this.taskService.createTask(createTaskDto, user);
+    const response = await this.taskService.createTask(createTaskDto, userId);
     return this.responseService.successResponse(
       response,
       'Task created successfully',
@@ -78,8 +88,9 @@ export class TaskController {
     description: 'Tasks fetched successfully',
   })
   @Get()
-  async getTasks() {
-    const response = await this.taskService.getTasks();
+  async getTasks(@Query() query: GetTasksDto) {
+    const filter = query.status ? { status: query.status } : {};
+    const response = await this.taskService.getTasks(filter);
     return this.responseService.successResponse(
       response,
       'Tasks fetched successfully',
@@ -128,7 +139,7 @@ export class TaskController {
   async updateTaskStatus(
     @AuthUser('id') userId: string,
     @Param('id') id: string,
-    @Body('status') updateTaskStatusDto: UpdateTaskStatusDto,
+    @Body() updateTaskStatusDto: UpdateTaskStatusDto,
   ) {
     const response = await this.taskService.updateTaskStatus(
       id,
