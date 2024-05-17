@@ -1,4 +1,5 @@
 import helmet from 'helmet';
+import * as morgan from 'morgan';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -12,6 +13,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('/api/v1');
   app.use(helmet());
+  app.use(morgan('dev'));
 
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(
