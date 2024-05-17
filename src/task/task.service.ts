@@ -19,6 +19,7 @@ export class TaskService {
     return this.taskModel
       .find(filter)
       .sort({
+        priority: 'desc',
         dueDate: 'asc',
         createdAt: 'desc',
       })
