@@ -99,6 +99,7 @@ export class TaskService {
         `Task with id ${id} not found for user with id ${userId}`,
       );
     }
+
     if (task.status === status) {
       throw new BadRequestException('Task is already in the same status');
     }
