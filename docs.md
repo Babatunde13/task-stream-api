@@ -11,9 +11,13 @@
     - [DTOs](#dtos)
     - [Guards](#guards)
     - [Filters](#filters)
+    - [Utilities](#utilities)
 - [API Endpoints](#api-endpoints)
   - [Authentication](#authentication)
   - [Tasks](#tasks)
+- [Real-time Communication](#real-time-communication)
+  - [Socket Events (Server to Client)](#socket-events-server-to-client)
+  - [Socket Endpoints (Client to Server)](#socket-endpoints-client-to-server)
 
 ## Getting Started
 ### Installation
@@ -28,8 +32,16 @@ cd task-stream-api
 ```
 
 3. Install dependencies
+
+For the project, I used `yarn` as the package manager, you can install it by running the following command if you don't have it installed already
+
 ```bash
-npm install
+npm install -g yarn
+```
+
+Then install the dependencies by running the following command
+```bash
+yarn install
 ```
 
 4. Create a `.env` file in the root directory and add the following environment variables, 
@@ -45,13 +57,13 @@ JWT_SECRET=your_secret_key
 To start the application in dev mode, run the following command
 
 ```bash
-npm run start:dev
+yarn run start:dev
 ```
 
 To start the application in production mode, run the following command
 
 ```bash
-npm run build && npm run start:prod
+yarn run build && yarn run start:prod
 ```
 
 ## API Documentation
@@ -123,9 +135,9 @@ npm run build && npm run start:prod
         - `priority` (String)
         - `dueDate` (DateString)
     - `UpdateTaskStatusDto`
-        - `status` (Enum) # ['in_progress', 'done']
+        - `status` (Enum) # ['open', 'in_progress', 'done']
     - `Get Tasks Dto`
-        - `status` (Enum) # ['in_progress', 'done']
+        - `status` (Enum) # ['open', 'in_progress', 'done']
         - `dueDate` (DateString)
 
 ### Guards
@@ -134,8 +146,11 @@ npm run build && npm run start:prod
 ### Filters
 - `HttpExceptionFilter` -> Catches all exceptions and returns a formatted response with status code and message
 
+### Utilities
+- `utils.ts`: Handles utility functions such as hashing and token generation
+
 ## API Endpoints
-The API Documentation is available at [http://localhost:3000/api/v1/docs](http://localhost:3000/api/v1/docs)
+The API Documentation is available at BaseURL/api/v1/docs i.e [http://localhost:3000/api/v1/docs](http://localhost:3000/api/v1/docs)
 ### Authentication
 - `POST /api/v1/auth/login`
 - `POST /api/v1/auth/register`
@@ -149,3 +164,15 @@ The API Documentation is available at [http://localhost:3000/api/v1/docs](http:/
 - `PUT /api/v1/tasks/{id}` - Update a task by id
 - `PATCH /api/v1/tasks/{id}/status` - Update a task status by id
 - `DELETE /api/v1/tasks/{id}` - Delete a task by id
+
+## Real-time Communication
+### Socket Events (Server to Client)
+- `task-created` - Emitted when a new task is created
+- `task-updated` - Emitted when a task is updated
+- `task-deleted` - Emitted when a task is deleted
+
+### Socket Endpoints (Client to Server)
+- `create-task` - Create a new task
+- `update-task` - Update a task
+- `delete-task` - Delete a task
+

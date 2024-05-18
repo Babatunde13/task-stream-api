@@ -14,6 +14,7 @@ async function bootstrap() {
   app.setGlobalPrefix('/api/v1');
   app.use(helmet());
   app.use(morgan('dev'));
+  app.enableCors();
 
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(
