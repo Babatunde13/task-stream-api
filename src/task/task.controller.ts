@@ -3,8 +3,11 @@ import {
   Controller,
   Delete,
   Get,
+  Put,
+  Patch,
   HttpCode,
   HttpStatus,
+  Logger as LoggerService,
   Param,
   Post,
   Query,
@@ -29,7 +32,10 @@ export class TaskController {
   constructor(
     private readonly taskService: TaskService,
     private readonly responseService: ResponseService,
-  ) {}
+    private readonly logger: LoggerService,
+  ) {
+    this.logger = new LoggerService(TaskService.name);
+  }
 
   private generateFilter(query: GetTasksDto, userId?: string) {
     const filter = {};
@@ -59,10 +65,31 @@ export class TaskController {
     const response = await this.taskService.getTasks(
       this.generateFilter(query, userId),
     );
-    return this.responseService.successResponse(
-      response,
-      'Tasks fetched successfully',
-    );
+    try {
+      this.logger.debug(`Tasks fetched`, {
+        context: TaskService.name,
+        type: 'get-tasks-by-auth-user',
+        category: 'task',
+        user: userId,
+        query,
+      });
+
+      return this.responseService.successResponse(
+        response,
+        'Tasks fetched successfully',
+      );
+    } catch (error) {
+      this.logger.error(`Error fetching tasks`, {
+        context: TaskService.name,
+        message: error.message,
+        type: 'get-tasks-by-auth-user',
+        category: 'task',
+        user: userId,
+        query,
+      });
+
+      throw error;
+    }
   }
 
   @ApiOkResponse({
@@ -71,13 +98,35 @@ export class TaskController {
   })
   @Get('/user/:id')
   async getTasksByUser(@Param('id') id: string, @Query() query: GetTasksDto) {
-    const response = await this.taskService.getTasks(
-      this.generateFilter(query, id),
-    );
-    return this.responseService.successResponse(
-      response,
-      'Task fetched successfully',
-    );
+    try {
+      const response = await this.taskService.getTasks(
+        this.generateFilter(query, id),
+      );
+
+      this.logger.debug(`Tasks fetched`, {
+        context: TaskService.name,
+        type: 'get-tasks-by-user',
+        category: 'task',
+        user: id,
+        query,
+      });
+
+      return this.responseService.successResponse(
+        response,
+        'Task fetched successfully',
+      );
+    } catch (error) {
+      this.logger.error(`Error fetching tasks`, {
+        context: TaskService.name,
+        message: error.message,
+        type: 'get-tasks-by-user',
+        category: 'task',
+        user: id,
+        query,
+      });
+
+      throw error;
+    }
   }
 
   @ApiOkResponse({
@@ -90,11 +139,33 @@ export class TaskController {
     @AuthUser('id') userId: string,
     @Body() createTaskDto: CreateTaskDto,
   ) {
-    const response = await this.taskService.createTask(createTaskDto, userId);
-    return this.responseService.successResponse(
-      response,
-      'Task created successfully',
-    );
+    try {
+      const response = await this.taskService.createTask(createTaskDto, userId);
+
+      this.logger.debug(`Task created`, {
+        context: TaskService.name,
+        type: 'create-task',
+        category: 'task',
+        user: userId,
+        payload: createTaskDto,
+      });
+
+      return this.responseService.successResponse(
+        response,
+        'Task created successfully',
+      );
+    } catch (error) {
+      this.logger.error(`Error creating task`, {
+        context: TaskService.name,
+        message: error.message,
+        type: 'create-task',
+        category: 'task',
+        user: userId,
+        payload: createTaskDto,
+      });
+
+      throw error;
+    }
   }
 
   @ApiOkResponse({
@@ -102,14 +173,36 @@ export class TaskController {
     description: 'Tasks fetched successfully',
   })
   @Get()
-  async getTasks(@Query() query: GetTasksDto) {
-    const response = await this.taskService.getTasks(
-      this.generateFilter(query),
-    );
-    return this.responseService.successResponse(
-      response,
-      'Tasks fetched successfully',
-    );
+  async getTasks(@AuthUser('id') userId: string, @Query() query: GetTasksDto) {
+    try {
+      const response = await this.taskService.getTasks(
+        this.generateFilter(query),
+      );
+
+      this.logger.debug(`Tasks fetched`, {
+        context: TaskService.name,
+        type: 'get-tasks',
+        category: 'task',
+        user: userId,
+        query,
+      });
+
+      return this.responseService.successResponse(
+        response,
+        'Tasks fetched successfully',
+      );
+    } catch (error) {
+      this.logger.error(`Error fetching tasks`, {
+        context: TaskService.name,
+        message: error.message,
+        type: 'get-tasks',
+        category: 'task',
+        user: userId,
+        query,
+      });
+
+      throw error;
+    }
   }
 
   @ApiOkResponse({
@@ -117,54 +210,124 @@ export class TaskController {
     description: 'Task fetched successfully',
   })
   @Get(':id')
-  async getTask(@Param('id') id: string) {
-    const response = await this.taskService.getTask(id);
-    return this.responseService.successResponse(
-      response,
-      'Task fetched successfully',
-    );
+  async getTask(@AuthUser('id') userId: string, @Param('id') id: string) {
+    try {
+      const response = await this.taskService.getTask(id);
+
+      this.logger.debug(`Task fetched`, {
+        context: TaskService.name,
+        type: 'get-task',
+        category: 'task',
+        user: userId,
+        taskID: id,
+      });
+
+      return this.responseService.successResponse(
+        response,
+        'Task fetched successfully',
+      );
+    } catch (error) {
+      this.logger.error(`Error fetching task`, {
+        context: TaskService.name,
+        message: error.message,
+        type: 'get-task',
+        category: 'task',
+        user: userId,
+        taskID: id,
+      });
+
+      throw error;
+    }
   }
 
   @ApiOkResponse({
     type: TaskResponse,
     description: 'Task updated successfully',
   })
-  @Post(':id')
+  @Put(':id')
   async updateTask(
     @AuthUser('id') userId: string,
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
-    const response = await this.taskService.updateTask(
-      id,
-      userId,
-      updateTaskDto,
-    );
-    return this.responseService.successResponse(
-      response,
-      'Task updated successfully',
-    );
+    try {
+      const response = await this.taskService.updateTask(
+        id,
+        userId,
+        updateTaskDto,
+      );
+
+      this.logger.debug(`Task updated`, {
+        context: TaskService.name,
+        type: 'update-task',
+        category: 'task',
+        user: userId,
+        taskID: id,
+        payload: updateTaskDto,
+      });
+
+      return this.responseService.successResponse(
+        response,
+        'Task updated successfully',
+      );
+    } catch (error) {
+      this.logger.error(`Error updating task`, {
+        context: TaskService.name,
+        message: error.message,
+        type: 'update-task',
+        category: 'task',
+        user: userId,
+        taskID: id,
+        payload: updateTaskDto,
+      });
+
+      throw error;
+    }
   }
 
   @ApiOkResponse({
     type: TaskResponse,
     description: 'Task status updated successfully',
   })
-  @Post(':id/status')
+  @Patch(':id/status')
   async updateTaskStatus(
     @AuthUser('id') userId: string,
     @Param('id') id: string,
     @Body() updateTaskStatusDto: UpdateTaskStatusDto,
   ) {
-    const response = await this.taskService.updateTaskStatus(
-      id,
-      userId,
-      updateTaskStatusDto.status,
-    );
-    return this.responseService.successResponse(
-      response,
-      'Task status updated successfully',
-    );
+    try {
+      const response = await this.taskService.updateTaskStatus(
+        id,
+        userId,
+        updateTaskStatusDto.status,
+      );
+
+      this.logger.debug(`Task status updated`, {
+        context: TaskService.name,
+        type: 'update-task-status',
+        category: 'task',
+        user: userId,
+        taskID: id,
+        payload: updateTaskStatusDto,
+      });
+
+      return this.responseService.successResponse(
+        response,
+        'Task status updated successfully',
+      );
+    } catch (error) {
+      this.logger.error(`Error updating task status`, {
+        context: TaskService.name,
+        message: error.message,
+        type: 'update-task-status',
+        category: 'task',
+        user: userId,
+        taskID: id,
+        payload: updateTaskStatusDto,
+      });
+
+      throw error;
+    }
   }
 
   @ApiOkResponse({
@@ -173,10 +336,32 @@ export class TaskController {
   })
   @Delete(':id/delete')
   async deleteTask(@AuthUser('id') userId: string, @Param('id') id: string) {
-    const response = await this.taskService.deleteTask(id, userId);
-    return this.responseService.successResponse(
-      response,
-      'Task deleted successfully',
-    );
+    try {
+      const response = await this.taskService.deleteTask(id, userId);
+
+      this.logger.debug(`Task deleted`, {
+        context: TaskService.name,
+        type: 'delete-task',
+        category: 'task',
+        user: userId,
+        taskID: id,
+      });
+
+      return this.responseService.successResponse(
+        response,
+        'Task deleted successfully',
+      );
+    } catch (error) {
+      this.logger.error(`Error deleting task`, {
+        context: TaskService.name,
+        message: error.message,
+        type: 'delete-task',
+        category: 'task',
+        user: userId,
+        taskID: id,
+      });
+
+      throw error;
+    }
   }
 }

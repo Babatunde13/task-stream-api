@@ -32,6 +32,7 @@ export class AuthController {
     type: LoginResponse,
     description: 'Login user',
   })
+  @HttpCode(HttpStatus.OK)
   @Post('/login')
   async login(@Body() loginDto: LoginDto) {
     const response = await this.authService.login(loginDto);

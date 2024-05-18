@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Logger as LoggerService,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -11,14 +12,17 @@ import {
   getJwtToken,
 } from '../utils';
 import { Model } from 'mongoose';
-import { User } from './user.entity';
+import { User, UserDocument } from './user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<User>,
-  ) {}
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly logger: LoggerService,
+  ) {
+    this.logger = new LoggerService(AuthService.name);
+  }
 
   async register(registerDto: RegisterDto) {
     const hashedPassword = await generatePasswordhash(registerDto.password);
@@ -31,6 +35,14 @@ export class AuthService {
     const savedUser = await this.userModel.create(user);
     const resp = savedUser.toJSON();
     delete resp.password;
+
+    this.logger.debug(`Account created`, {
+      context: AuthService.name,
+      type: 'register',
+      category: 'auth',
+      user: savedUser.id,
+    });
+
     return resp;
   }
 
@@ -39,6 +51,13 @@ export class AuthService {
       email: loginDto.email.toLowerCase(),
     });
     if (!user) {
+      this.logger.error(`Email not found`, {
+        context: AuthService.name,
+        type: 'login',
+        category: 'auth',
+        email: loginDto.email,
+      });
+
       throw new NotFoundException('Invalid email or password');
     }
 
@@ -47,6 +66,12 @@ export class AuthService {
       user.password,
     );
     if (!isPasswordMatch) {
+      this.logger.error(`Invalid password`, {
+        context: AuthService.name,
+        type: 'login',
+        category: 'auth',
+        email: loginDto.email,
+      });
       throw new BadRequestException('Invalid email or password');
     }
 
@@ -54,6 +79,12 @@ export class AuthService {
     delete userObj.password;
 
     const token = getJwtToken({ id: user.id, email: user.email });
+    this.logger.debug(`User logged in`, {
+      context: AuthService.name,
+      type: 'login',
+      category: 'auth',
+      user: user.id,
+    });
     return {
       user: userObj,
       token,

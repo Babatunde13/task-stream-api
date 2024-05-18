@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger as LoggerService, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -12,6 +12,6 @@ import { ResponseModule } from '../responses/response.module';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, ResponseService],
+  providers: [AuthService, ResponseService, LoggerService],
 })
 export class AuthModule {}

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger as LoggerService, Module } from '@nestjs/common';
 import { TaskController } from './task.controller';
 import { TaskService } from './task.service';
 import { ResponseService } from '../responses/response.service';
@@ -16,6 +16,6 @@ import { ResponseModule } from '../responses/response.module';
     ]),
   ],
   controllers: [TaskController],
-  providers: [TaskService, ResponseService],
+  providers: [TaskService, ResponseService, LoggerService],
 })
 export class TaskModule {}

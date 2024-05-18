@@ -16,7 +16,7 @@ import { ResponseService } from './responses/response.service';
       useFactory: (configService: ConfigService) => ({
         uri:
           configService.get<string>('MONGODB_URI') ||
-          'mongodb://localhost/nest',
+          'mongodb://localhost:27017/task-stream',
       }),
       inject: [ConfigService],
     }),
