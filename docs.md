@@ -69,22 +69,22 @@ yarn run build && yarn run start:prod
 ## API Documentation
 ### Entities
 - `User` -> Store user information
-    - _id (ObjectId)
-    - fullname (String)
-    - email (String)
-    - password (String)
-    - createdAt (Date)
-    - updatedAt (Date)
+    - `_id` (ObjectId)
+    - `fullname` (String)
+    - `email` (String)
+    - `password` (String)
+    - `createdAt` (Date)
+    - `updatedAt` (Date)
 - `Task` -> Store task information
-    - _id (ObjectId)
-    - title (String)
-    - description (String)
-    - status (Enum) # ['open', 'in_progress', 'done'] (default: 'open')
-    - owner (ObjectId)
-    - priority (String)
-    - dueDate (Date)
-    - createdAt (Date)
-    - updatedAt (Date)
+    - `_id` (ObjectId)
+    - `title` (String)
+    - `description` (String)
+    - `status` (Enum) # ['open', 'in_progress', 'done'] (default: 'open')
+    - `owner` (ObjectId)
+    - `priority` (String)
+    - `dueDate` (Date)
+    - `createdAt` (Date)
+    - `updatedAt` (Date)
 
 ### `Controllers`
 - `AuthController`
