@@ -12,7 +12,8 @@
     <script>
         const socket = io('http://localhost:3000', {
             autoConnect: false,
-        }); // Replace with your server URL if different
+            transports: ["websocket"]
+        });
 
         socket.connect();
 
@@ -68,23 +69,26 @@
             return taskDiv;
         };
 
-        socket.on('task-created', (task) => {
-            const tasksDiv = document.getElementById('tasks');
-            const taskDiv = generateTaskDiv(task);
-            tasksDiv.appendChild(taskDiv);
-        });
-
-        socket.on('task-updated', (task) => {
-            const tasksDiv = document.getElementById('tasks');
-            const currentTaskDiv = document.getElementById(task._id);
-            const newTaskDiv = generateTaskDiv(task);
-            tasksDiv.replaceChild(newTaskDiv, currentTaskDiv);
-        });
-
-        socket.on('task-deleted', (task) => {
-            const tasksDiv = document.getElementById('tasks');
-            const taskDiv = document.getElementById(task._id);
-            tasksDiv.removeChild(taskDiv);
+        socket.on('connection', () => {
+            console.log('Connected to WebSocket server');
+            socket.on('task-created', (task) => {
+                const tasksDiv = document.getElementById('tasks');
+                const taskDiv = generateTaskDiv(task);
+                tasksDiv.appendChild(taskDiv);
+            });
+    
+            socket.on('task-updated', (task) => {
+                const tasksDiv = document.getElementById('tasks');
+                const currentTaskDiv = document.getElementById(task._id);
+                const newTaskDiv = generateTaskDiv(task);
+                tasksDiv.replaceChild(newTaskDiv, currentTaskDiv);
+            });
+    
+            socket.on('task-deleted', (task) => {
+                const tasksDiv = document.getElementById('tasks');
+                const taskDiv = document.getElementById(task._id);
+                tasksDiv.removeChild(taskDiv);
+            });
         });
     </script>
 </body>

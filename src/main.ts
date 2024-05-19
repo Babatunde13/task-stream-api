@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './http-exception.filter';
 
@@ -11,11 +12,12 @@ async function bootstrap() {
   await ConfigModule.envVariablesLoaded;
   const APP_PORT = parseInt(process.env.PORT) || 3000;
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('/api/v1');
+
   app.use(helmet());
   app.use(morgan('dev'));
-  app.enableCors();
-
+  app.enableCors({ preflightContinue: false });
+  app.useWebSocketAdapter(new IoAdapter(app));
+  app.setGlobalPrefix('/api/v1');
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({ stopAtFirstError: true, errorHttpStatusCode: 422 }),

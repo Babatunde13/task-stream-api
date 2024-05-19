@@ -19,11 +19,11 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task, TaskDocument, TaskStatus } from './task.entity';
 
 @Injectable()
-@WebSocketGateway({})
+@WebSocketGateway({ transports: ['websocket'] })
 export class TaskService
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  @WebSocketServer() private readonly io: Server;
+  @WebSocketServer() io: Server;
   constructor(
     @InjectModel(Task.name) private readonly taskModel: Model<TaskDocument>,
     private readonly logger: LoggerService,
