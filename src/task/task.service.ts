@@ -17,6 +17,8 @@ import { Model } from 'mongoose';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task, TaskDocument, TaskStatus } from './task.entity';
+import { verifyToken } from 'src/utils';
+import { User, UserDocument } from 'src/auth/user.entity';
 
 @Injectable()
 @WebSocketGateway({ transports: ['websocket'] })
@@ -26,8 +28,15 @@ export class TaskService
   @WebSocketServer() io: Server;
   constructor(
     @InjectModel(Task.name) private readonly taskModel: Model<TaskDocument>,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    this.logger = new LoggerService(TaskService.name);
+  }
+
+  afterInit() {
+    this.logger.log('Initialized Websocket Gateway');
+  }
 
   private emitEvent(event: string, data: any) {
     if (this.io) {
@@ -35,8 +44,21 @@ export class TaskService
     }
   }
 
-  afterInit() {
-    this.logger.log('Initialized');
+  private getSocketAuthPayload(client: Socket) {
+    const authHeader = client.handshake.headers.authorization;
+    if (authHeader) {
+      const token = authHeader.split(' ')[1];
+      return verifyToken(token) as { id: string };
+    }
+    return null;
+  }
+
+  private async setUserToClient(client: Socket, id: string) {
+    const user = await this.userModel.findById(id);
+    if (user) {
+      client.data.user = user;
+      this.logger.log(`Client id: ${client.id} authenticated`);
+    }
   }
 
   async handleConnection(client: Socket) {
@@ -44,9 +66,13 @@ export class TaskService
 
     this.logger.log(`Client id: ${client.id} connected`);
     this.logger.debug(`Number of connected clients: ${sockets.size}`);
+    const authPayload = this.getSocketAuthPayload(client);
+    if (authPayload) {
+      await this.setUserToClient(client, authPayload.id);
+    }
   }
 
-  handleDisconnect(client: any) {
+  handleDisconnect(client: Socket) {
     this.logger.log(`Cliend id:${client.id} disconnected`);
   }
 

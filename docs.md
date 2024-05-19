@@ -175,4 +175,9 @@ When a new task is created, updated or deleted, the server emits the following e
 - `task-deleted` - Emitted when a task is deleted
 
 ## Testing Real-time Communication
-To test the real-time communication, There is a simple HTML file in the root directory `test.html` which connects to the server using socket.io and listens for the events emitted by the server. You can open this file in your browser and every time a new task is created, updated or deleted, either from the swagger UI or any other client, the tasks will be displayed in the browser.
+To test the real-time communication, There is a simple HTML file in the root directory `test.html` which connects to the server using socket.io and listens for the events emitted by the server. You can open this file in your browser and every time a new task is created, updated or deleted, either from the swagger UI or any other client, the tasks will be displayed in the browser. Aside from this, you can also use Postman to test the API endpoints and socket io implementation.
+The Socket IO server also handles authentication, so if you pass a JWT token to the header it will try to authenticate the user silently.
+
+Next Steps:
+- Enforce authentication in the socket.io connection, so only authenticated users can connect
+- Implement a front-end application using React or Angular to consume the API

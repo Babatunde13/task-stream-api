@@ -11,14 +11,11 @@
 
     <script>
         const socket = io('http://localhost:3000', {
-            autoConnect: false,
-            transports: ["websocket"]
+            transports: ["websocket"],
         });
 
-        socket.connect();
-
         socket.on('connect', () => {
-            console.log('Connected to WebSocket server');
+            console.log('Connected to WebSocket server at port 3001');
         });
 
         socket.on('disconnect', () => {
@@ -30,16 +27,6 @@
         });
 
         const tasksDiv = document.getElementById('tasks');
-        // add Tasks p tag to tfirst element in tasksDiv if tasksDiv is not empty
-        if (tasksDiv.children.length === 0) {
-            const tasksP = document.createElement('h2');
-            tasksP.textContent = 'No tasks available';
-            tasksDiv.appendChild(tasksP);
-        } else {
-            const taskH2 = document.createElement('h2');
-            taskH2.textContent = 'Tasks';
-            tasksDiv.insertBefore(taskH2, tasksDiv.firstChild);
-        }
 
         const generateTaskDiv = (task) => {
             const taskDiv = document.createElement('div');
@@ -69,26 +56,23 @@
             return taskDiv;
         };
 
-        socket.on('connection', () => {
-            console.log('Connected to WebSocket server');
-            socket.on('task-created', (task) => {
-                const tasksDiv = document.getElementById('tasks');
-                const taskDiv = generateTaskDiv(task);
-                tasksDiv.appendChild(taskDiv);
-            });
-    
-            socket.on('task-updated', (task) => {
-                const tasksDiv = document.getElementById('tasks');
-                const currentTaskDiv = document.getElementById(task._id);
-                const newTaskDiv = generateTaskDiv(task);
-                tasksDiv.replaceChild(newTaskDiv, currentTaskDiv);
-            });
-    
-            socket.on('task-deleted', (task) => {
-                const tasksDiv = document.getElementById('tasks');
-                const taskDiv = document.getElementById(task._id);
-                tasksDiv.removeChild(taskDiv);
-            });
+        socket.on('task-created', (task) => {
+            const tasksDiv = document.getElementById('tasks');
+            const taskDiv = generateTaskDiv(task);
+            tasksDiv.appendChild(taskDiv);
+        });
+
+        socket.on('task-updated', (task) => {
+            const tasksDiv = document.getElementById('tasks');
+            const currentTaskDiv = document.getElementById(task._id);
+            const newTaskDiv = generateTaskDiv(task);
+            tasksDiv.replaceChild(newTaskDiv, currentTaskDiv);
+        });
+
+        socket.on('task-deleted', (task) => {
+            const tasksDiv = document.getElementById('tasks');
+            const taskDiv = document.getElementById(task._id);
+            tasksDiv.removeChild(taskDiv);
         });
     </script>
 </body>
