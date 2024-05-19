@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Client</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>WebSocket Client for Task Management</h1>
+    <div id="tasks">
+    </div>
+
+    <script>
+        const socket = io('http://localhost:3000', {
+            autoConnect: false,
+        }); // Replace with your server URL if different
+
+        socket.connect();
+
+        socket.on('connect', () => {
+            console.log('Connected to WebSocket server');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from WebSocket server');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Failed to connect to WebSocket server:', error);
+        });
+
+        const tasksDiv = document.getElementById('tasks');
+        // add Tasks p tag to tfirst element in tasksDiv if tasksDiv is not empty
+        if (tasksDiv.children.length === 0) {
+            const tasksP = document.createElement('h2');
+            tasksP.textContent = 'No tasks available';
+            tasksDiv.appendChild(tasksP);
+        } else {
+            const taskH2 = document.createElement('h2');
+            taskH2.textContent = 'Tasks';
+            tasksDiv.insertBefore(taskH2, tasksDiv.firstChild);
+        }
+
+        const generateTaskDiv = (task) => {
+            const taskDiv = document.createElement('div');
+            taskDiv.classList.add('task');
+            taskDiv.id = task._id;
+            const taskTitle = document.createElement('h3');
+            const taskDescription = document.createElement('p');
+            const taskStatus = document.createElement('p');
+            const taskDueDate = document.createElement('p');
+            const taskPriority = document.createElement('p');
+            const taskCreatedAt = document.createElement('p');
+            const taskUpdatedAt = document.createElement('p');
+            taskTitle.textContent = `Title: ${task.title}`;
+            taskDescription.textContent = `Description: ${task.description}`;
+            taskStatus.textContent = `Status: ${task.status}`;
+            taskDueDate.textContent = `Due Date: ${task.dueDate}`;
+            taskPriority.textContent = `Priority: ${task.priority}`;
+            taskCreatedAt.textContent = `Created At: ${task.createdAt}`;
+            taskUpdatedAt.textContent = `Updated At: ${task.updatedAt}`;
+            taskDiv.appendChild(taskTitle);
+            taskDiv.appendChild(taskDescription);
+            taskDiv.appendChild(taskStatus);
+            taskDiv.appendChild(taskDueDate);
+            taskDiv.appendChild(taskPriority);
+            taskDiv.appendChild(taskCreatedAt);
+            taskDiv.appendChild(taskUpdatedAt);
+            return taskDiv;
+        };
+
+        socket.on('task-created', (task) => {
+            const tasksDiv = document.getElementById('tasks');
+            const taskDiv = generateTaskDiv(task);
+            tasksDiv.appendChild(taskDiv);
+        });
+
+        socket.on('task-updated', (task) => {
+            const tasksDiv = document.getElementById('tasks');
+            const currentTaskDiv = document.getElementById(task._id);
+            const newTaskDiv = generateTaskDiv(task);
+            tasksDiv.replaceChild(newTaskDiv, currentTaskDiv);
+        });
+
+        socket.on('task-deleted', (task) => {
+            const tasksDiv = document.getElementById('tasks');
+            const taskDiv = document.getElementById(task._id);
+            tasksDiv.removeChild(taskDiv);
+        });
+    </script>
+</body>
+</html>

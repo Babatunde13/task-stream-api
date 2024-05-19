@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import {
   WebSocketGateway,
-  SubscribeMessage,
   WebSocketServer,
   OnGatewayInit,
   OnGatewayConnection,
@@ -18,8 +17,6 @@ import { Model } from 'mongoose';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task, TaskDocument, TaskStatus } from './task.entity';
-import { verifyToken } from '../utils';
-import { User, UserDocument } from '../auth/user.entity';
 
 @Injectable()
 @WebSocketGateway({})
@@ -29,33 +26,12 @@ export class TaskService
   @WebSocketServer() private readonly io: Server;
   constructor(
     @InjectModel(Task.name) private readonly taskModel: Model<TaskDocument>,
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly logger: LoggerService,
   ) {}
 
   private emitEvent(event: string, data: any) {
     if (this.io) {
       this.io.sockets.emit(event, data);
-    }
-  }
-
-  private async getUserFromAuthenticationToken(token: string) {
-    const payload = verifyToken(token) as { id: string };
-    const user = await this.userModel.findById(payload.id);
-    return user;
-  }
-
-  private async getUserFromSocket(socket: Socket) {
-    const token = socket.handshake.headers.authorization;
-
-    if (token) {
-      const authToken = token.split(' ')[1];
-      const user = await this.getUserFromAuthenticationToken(authToken);
-      if (user) {
-        socket.data.user = user;
-      }
-
-      return user;
     }
   }
 
@@ -68,14 +44,6 @@ export class TaskService
 
     this.logger.log(`Client id: ${client.id} connected`);
     this.logger.debug(`Number of connected clients: ${sockets.size}`);
-
-    await this.getUserFromSocket(client);
-  }
-
-  private getCurrentSocketUser() {
-    return this.io.sockets.sockets.get(
-      this.io.sockets.sockets.keys().next().value,
-    ).data.user;
   }
 
   handleDisconnect(client: any) {
@@ -103,14 +71,9 @@ export class TaskService
     });
   }
 
-  @SubscribeMessage('create-task')
   async createTask(createTaskDto: CreateTaskDto, userId: string) {
     if (new Date(createTaskDto.dueDate) < new Date()) {
       throw new BadRequestException('Due date cannot be in the past');
-    }
-
-    if (!userId) {
-      userId = this.getCurrentSocketUser()._id;
     }
 
     const task = await this.taskModel.create({
@@ -131,12 +94,7 @@ export class TaskService
     return task;
   }
 
-  @SubscribeMessage('update-task')
   async updateTask(id: string, userId: string, updateTaskDto: UpdateTaskDto) {
-    if (!userId) {
-      userId = this.getCurrentSocketUser()._id;
-    }
-
     const task = await this.taskModel.findOne({
       _id: id,
       owner: userId,
@@ -170,12 +128,7 @@ export class TaskService
     return task;
   }
 
-  @SubscribeMessage('update-task')
   async updateTaskStatus(id: string, userId: string, status: TaskStatus) {
-    if (!userId) {
-      userId = this.getCurrentSocketUser()._id;
-    }
-
     const task = await this.taskModel.findOne({
       _id: id,
       owner: userId,
@@ -210,12 +163,7 @@ export class TaskService
     return task;
   }
 
-  @SubscribeMessage('delete-task')
   async deleteTask(id: string, userId: string) {
-    if (!userId) {
-      userId = this.getCurrentSocketUser()._id;
-    }
-
     const task = await this.taskModel.findOneAndDelete({
       _id: id,
       owner: userId,

@@ -17,7 +17,7 @@
   - [Tasks](#tasks)
 - [Real-time Communication](#real-time-communication)
   - [Socket Events (Server to Client)](#socket-events-server-to-client)
-  - [Socket Endpoints (Client to Server)](#socket-endpoints-client-to-server)
+- [Testing Real-time Communication](#testing-real-time-communication)
 
 ## Getting Started
 ### Installation
@@ -166,13 +166,13 @@ The API Documentation is available at BaseURL/api/v1/docs i.e [http://localhost:
 - `DELETE /api/v1/tasks/{id}` - Delete a task by id
 
 ## Real-time Communication
+The application uses Socket.io for real-time communication between the server and the client. The client listens for events emitted by the server and updates the UI accordingly.
+
 ### Socket Events (Server to Client)
+When a new task is created, updated or deleted, the server emits the following events to all connected clients
 - `task-created` - Emitted when a new task is created
 - `task-updated` - Emitted when a task is updated
 - `task-deleted` - Emitted when a task is deleted
 
-### Socket Endpoints (Client to Server)
-- `create-task` - Create a new task
-- `update-task` - Update a task
-- `delete-task` - Delete a task
-
+## Testing Real-time Communication
+To test the real-time communication, There is a simple HTML file in the root directory `test.html` which connects to the server using socket.io and listens for the events emitted by the server. You can open this file in your browser and every time a new task is created, updated or deleted, either from the swagger UI or any other client, the tasks will be displayed in the browser.
