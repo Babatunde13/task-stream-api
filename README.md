@@ -1,73 +1,183 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# API Documentation
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Table of Contents
+- [Getting Started](#getting-started)
+  - [Installation](#installation)
+  - [Running the application](#running-the-application)
+- [API Documentation](#api-documentation)
+    - [Entities](#entities)
+    - [Controllers](#controllers)
+    - [Services](#services)
+    - [DTOs](#dtos)
+    - [Guards](#guards)
+    - [Filters](#filters)
+    - [Utilities](#utilities)
+- [API Endpoints](#api-endpoints)
+  - [Authentication](#authentication)
+  - [Tasks](#tasks)
+- [Real-time Communication](#real-time-communication)
+  - [Socket Events (Server to Client)](#socket-events-server-to-client)
+- [Testing Real-time Communication](#testing-real-time-communication)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
+## Getting Started
+### Installation
+1. Clone the repository
 ```bash
-$ npm install
+git clone https://github.com/Babatunde13/task-stream-api.git
 ```
 
-## Running the app
-
+2. Change the directory to the project folder
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cd task-stream-api
 ```
 
-## Test
+3. Install dependencies
+
+For the project, I used `yarn` as the package manager, you can install it by running the following command if you don't have it installed already
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install -g yarn
 ```
 
-## Support
+Then install the dependencies by running the following command
+```bash
+yarn install
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+4. Create a `.env` file in the root directory and add the following environment variables, 
+The `DB_URI` should be a MongoDB URI, you can use a local MongoDB instance or a cloud MongoDB service like MongoDB Atlas, by default it is `mongodb://localhost:27017/task-stream`. The JWT_SECRET can be any random but strong string which will be used to sign the JWT token.
 
-## Stay in touch
+```bash
+PORT=3000
+DB_URI=mongodb://localhost:27017/task-stream
+JWT_SECRET=your_secret_key
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Running the application
+To start the application in dev mode, run the following command
 
-## License
+```bash
+yarn run start:dev
+```
 
-Nest is [MIT licensed](LICENSE).
+To start the application in production mode, run the following command
+
+```bash
+yarn run build && yarn run start:prod
+```
+
+## API Documentation
+### Entities
+- `User` -> Store user information
+    - `_id` (ObjectId)
+    - `fullname` (String)
+    - `email` (String)
+    - `password` (String)
+    - `createdAt` (Date)
+    - `updatedAt` (Date)
+- `Task` -> Store task information
+    - `_id` (ObjectId)
+    - `title` (String)
+    - `description` (String)
+    - `status` (Enum) # ['open', 'in_progress', 'done'] (default: 'open')
+    - `owner` (ObjectId)
+    - `priority` (String)
+    - `dueDate` (Date)
+    - `createdAt` (Date)
+    - `updatedAt` (Date)
+
+### `Controllers`
+- `AuthController`
+    - `login` -> uses LoginDto
+    - `register` -> uses RegisterDto
+- `TaskController`
+    - `createTask` -> uses CreateTaskDto
+    - `getTasks` -> uses GetTasksDto
+    - `getTask` -> uses GetTaskDto
+    - `updateTask` -> uses UpdateTaskDto
+    - `updateTaskStatus` -> uses UpdateTaskStatusDto
+    - `deleteTask` -> uses GetTaskDto
+    - `getAuthUserTasks` -> uses GetTasksDto
+    - `getUserTask` -> uses GetTaskDto
+
+### Services
+- `AuthService`
+    - `login`: Gets user by email, compares password and generates token
+    - `register` -> creates a new user and generates a token
+- `TaskService`
+    - `createTask` -> creates a new task for the authenticated user
+    - `getTasks` -> gets all tasks filtered by status and dueDate(tasks whose dueDate is greater than or equal to the given dueDate) and sorts by priority, dueDate and createdAt
+    - `getTask` -> gets a task by id
+    - `updateTask` -> updates a task by id for the authenticated user
+    - `updateTaskStatus` -> updates a task status by id for the authenticated user
+    - `deleteTask` -> deletes a task by id for the authenticated user
+    - `getAuthUserTasks` -> gets all tasks of the authenticated user filtered by status and dueDate(tasks whose dueDate is greater than or equal to the given dueDate) and sorts by priority, dueDate and createdAt
+    - `getUserTasks` -> gets all tasks of the given user filtered by status and dueDate(tasks whose dueDate is greater than or equal to the given dueDate) and sorts by priority, dueDate and createdAt
+
+### DTOs
+- Auth Dtos
+    - `LoginDto`
+        - `email` (String)
+        - `password` (String) # should be at least 8 characters with at least one uppercase letter, one lowercase letter, one number and one special character
+    - `RegisterDto`
+        - `fullname` (String)
+        - `email` (String)
+        - `password` (String) # should be at least 8 characters with at least one uppercase letter, one lowercase letter, one number and one special character
+- Task Dtos
+    - `CreateTaskDto`
+        - `title` (String)
+        - `description` (String)
+        - `priority` (String)
+        - `dueDate` (DateString)
+    - `UpdateTaskDto`
+        - `title` (String)
+        - `description` (String)
+        - `priority` (String)
+        - `dueDate` (DateString)
+    - `UpdateTaskStatusDto`
+        - `status` (Enum) # ['open', 'in_progress', 'done']
+    - `Get Tasks Dto`
+        - `status` (Enum) # ['open', 'in_progress', 'done']
+        - `dueDate` (DateString)
+
+### Guards
+- `AuthGuard` -> checks if the user is authenticated. It uses a JWT token to authenticate the user, and returns a 401 error if the user is not authenticated
+
+### Filters
+- `HttpExceptionFilter` -> Catches all exceptions and returns a formatted response with status code and message
+
+### Utilities
+- `utils.ts`: Handles utility functions such as hashing and token generation
+
+## API Endpoints
+The API Documentation is available at BaseURL/api/v1/docs i.e [http://localhost:3000/api/v1/docs](http://localhost:3000/api/v1/docs)
+### Authentication
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/register`
+
+### Tasks
+- `GET /api/v1/tasks/user` - Get all tasks of the authenticated user
+- `GET /api/v1/tasks/user/{id}` - Get all tasks of the given user
+- `POST /api/v1/tasks` - Create a new task
+- `GET /api/v1/tasks` - Get all tasks
+- `GET /api/v1/tasks/{id}` - Get a task by id
+- `PUT /api/v1/tasks/{id}` - Update a task by id
+- `PATCH /api/v1/tasks/{id}/status` - Update a task status by id
+- `DELETE /api/v1/tasks/{id}` - Delete a task by id
+
+## Real-time Communication
+The application uses Socket.io for real-time communication between the server and the client. The client listens for events emitted by the server and updates the UI accordingly.
+
+### Socket Events (Server to Client)
+When a new task is created, updated or deleted, the server emits the following events to all connected clients
+- `task-created` - Emitted when a new task is created
+- `task-updated` - Emitted when a task is updated
+- `task-deleted` - Emitted when a task is deleted
+
+## Testing Real-time Communication
+To test the real-time communication, There is a simple HTML file in the root directory [`test.html`](./test.html) which connects to the server using socket.io and listens for the events emitted by the server. You can open this file in your browser and every time a new task is created, updated or deleted, either from the Swagger UI or any other client, the tasks will be displayed in the browser. Aside from this, you can also use Postman to test the API endpoints and socket io implementation.
+The Socket IO server also handles authentication, so if you pass a JWT token to the header it will try to authenticate the user silently.
+
+Next Steps:
+- Enforce authentication in the socket.io connection, so only authenticated users can connect
+- Implement a front-end application using React or Angular to consume the API
