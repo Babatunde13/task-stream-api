@@ -26,7 +26,7 @@
 git clone https://github.com/Babatunde13/task-stream-api.git
 ```
 
-2. Change directory to the project folder
+2. Change the directory to the project folder
 ```bash
 cd task-stream-api
 ```
@@ -102,8 +102,8 @@ yarn run build && yarn run start:prod
 
 ### Services
 - `AuthService`
-    - `login`: Gets user by email and compares password and generates token
-    - `register` -> creates a new user and generates token
+    - `login`: Gets user by email, compares password and generates token
+    - `register` -> creates a new user and generates a token
 - `TaskService`
     - `createTask` -> creates a new task for the authenticated user
     - `getTasks` -> gets all tasks filtered by status and dueDate(tasks whose dueDate is greater than or equal to the given dueDate) and sorts by priority, dueDate and createdAt
@@ -141,7 +141,7 @@ yarn run build && yarn run start:prod
         - `dueDate` (DateString)
 
 ### Guards
-- `AuthGuard` -> checks if the user is authenticated. It uses JWT token to authenticate the user, returns a 401 error if the user is not authenticated
+- `AuthGuard` -> checks if the user is authenticated. It uses a JWT token to authenticate the user, and returns a 401 error if the user is not authenticated
 
 ### Filters
 - `HttpExceptionFilter` -> Catches all exceptions and returns a formatted response with status code and message
@@ -175,7 +175,7 @@ When a new task is created, updated or deleted, the server emits the following e
 - `task-deleted` - Emitted when a task is deleted
 
 ## Testing Real-time Communication
-To test the real-time communication, There is a simple HTML file in the root directory `test.html` which connects to the server using socket.io and listens for the events emitted by the server. You can open this file in your browser and every time a new task is created, updated or deleted, either from the swagger UI or any other client, the tasks will be displayed in the browser. Aside from this, you can also use Postman to test the API endpoints and socket io implementation.
+To test the real-time communication, There is a simple HTML file in the root directory [`test.html`](./test.html) which connects to the server using socket.io and listens for the events emitted by the server. You can open this file in your browser and every time a new task is created, updated or deleted, either from the Swagger UI or any other client, the tasks will be displayed in the browser. Aside from this, you can also use Postman to test the API endpoints and socket io implementation.
 The Socket IO server also handles authentication, so if you pass a JWT token to the header it will try to authenticate the user silently.
 
 Next Steps:
